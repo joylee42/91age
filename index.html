@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>91式歲數計算器</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="192x192" href="touch-icon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue2-datepicker/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue-toast-notification@0.6.0/dist/theme-sugar.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue2-datepicker@3.8.1/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue2-datepicker@3.8.1/locale/zh-tw.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-toast-notification@0.6.0/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-clipboards@1.2.4/dist/vue-clipboards.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <br /><br />
+      <h3>~91式歲數計算器~</h3>
+      <span>完全本地運算,無經由伺服器運算</span><br />
+      <span>可安心食用</span>
+      <br /><br /><br />
+      <span>輸入出生日期YYYY/MM/DD⬇️</span><br />
+      <date-picker v-model="startDate" value-type="format" format="YYYY/MM/DD"></date-picker>
+      <br /><br />
+      <template v-if="isStartDateEmpty">
+        <span>窩ㄐ歲ㄋ(⁎⁍̴̛ᴗ⁍̴̛⁎)</span>
+      </template>
+      <template v-else>
+        <span v-if="isBirthAlready" id="chinese">窩{{ ninetyoneAge }}歲歲
+        <button v-clipboard="pendingCopyMsg"
+          @success="copySuccess"
+          @error="copyError"
+        >複製文字</button></span>
+        <span v-else>窩還沒出生</span>
+      </template>
+    </div>
+    <script>
+      Vue.use(vueClipboards)
+      Vue.use(VueToast)
+      var app = new Vue({
+        el: '#app',
+        data: {
+          startDate: null,
+          ninetyoneAge: null,
+          isStartDateEmpty: true,
+          isBirthAlready: true,
+          pendingCopyMsg: null,
+        },
+        watch: {
+          startDate: function (val) {
+            if (val) {
+              this.isStartDateEmpty = false
+              let start = moment(val, 'YYYY/MM/DD')
+              let end = moment(new Date())
+              let duration = moment.duration(end.diff(start))
+              let boringAge = Math.floor(duration.asYears())
+              if (boringAge < 0) {
+                this.isBirthAlready = false
+              } else {
+                this.isBirthAlready = true
+              }
+              this.ninetyoneAge = boringAge - Math.floor(boringAge/12)*12
+              if (this.ninetyoneAge == 0) {
+                this.ninetyoneAge = 1
+              }
+              this.pendingCopyMsg = `窩${this.ninetyoneAge}歲歲`
+            } else {
+              this.isStartDateEmpty = true
+            }
+          },
+        },
+        methods: {
+          copySuccess(e) {
+            Vue.$toast.success('複製成功(⁎⁍̴̛ᴗ⁍̴̛⁎)', {
+              position: 'top'
+            })
+          },
+          copyError(e) {
+            Vue.$toast.error('複製失敗qwqqq', {
+              position: 'top'
+            })
+          },
+        },
+        components: {
+          DatePicker,
+        },
+      })
+    </script>
+    <style>
+      #app {
+        text-align: center;
+      }
+      h3 {
+        font-style: italic;
+      }
+    </style>
+  </body>
+</html>
