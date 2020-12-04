@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue2-datepicker@3.8.1/index.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue-toast-notification@0.6.0/dist/theme-sugar.css">
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue2-datepicker@3.8.1/index.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue2-datepicker@3.8.1/locale/zh-tw.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue-toast-notification@0.6.0/dist/index.min.js"></script>
@@ -35,8 +35,45 @@
                 <p>可安心食用</p>
               </v-flex>
               <v-flex mb-5 xs12>
-                <p>輸入出生日期YYYY/MM/DD⬇️</p>
-                <date-picker v-model="startDate" value-type="format" format="YYYY/MM/DD"></date-picker>
+                <p>輸入西元出生日期⬇️</p>
+                <!--<date-picker v-model="startDate" value-type="format" format="YYYY/MM/DD"></date-picker>-->
+                <v-row justify="center">
+                  <v-col
+                    cols="12"
+                    sm="10"
+                    md="8"
+                    lg="6"
+                  >
+                    <v-menu
+                      ref="menu"
+                      v-model="menu"
+                      :close-on-content-click="false"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="290px"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          readonly
+                          v-model="startDate"
+                          prepend-icon="mdi-calendar"
+                          v-bind="attrs"
+                          v-on="on"
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker
+                        color="pink lighten-3"
+                        ref="picker"
+                        v-model="startDate"
+                        :max="maxDate"
+                        min="1911-01-01"
+                        @change="save"
+                        locale="zh-tw"
+                      ></v-date-picker>
+                    </v-menu>
+                  </v-col>
+                </v-row>
+
               </v-flex>
               <v-flex mb-5 xs12>
                 <template v-if="isStartDateEmpty">
@@ -48,7 +85,7 @@
                     <v-btn v-clipboard="pendingCopyMsg"
                       @success="copySuccess"
                       @error="copyError"
-                      color="primary"
+                      color="pink lighten-3"
                       elevation="2"
                     >複製文字</v-btn></p>
                     <span v-else>窩還沒出生</span>
@@ -81,10 +118,15 @@
         }),
         data: {
           startDate: null,
+          maxDate: null,
+          menu: false,
           ninetyoneAge: null,
           isStartDateEmpty: true,
           isBirthAlready: true,
           pendingCopyMsg: null,
+        },
+        created: function () {
+          this.maxDate = moment().add(3, 'years').format('YYYY-MM-DD')
         },
         watch: {
           startDate: function (val) {
@@ -92,8 +134,8 @@
               this.isStartDateEmpty = false
               let start = moment(val, 'YYYY/MM/DD')
               let end = moment(new Date())
-              let duration = moment.duration(end.diff(start))
-              let boringAge = Math.floor(duration.asYears())
+              let boringAge = end.diff(start, 'year')
+
               if (boringAge < 0) {
                 this.isBirthAlready = false
               } else {
@@ -108,8 +150,14 @@
               this.isStartDateEmpty = true
             }
           },
+          menu (val) {
+            val && setTimeout(() => (this.$refs.picker.activePicker = 'YEAR'))
+          },
         },
         methods: {
+          save (startDate) {
+            this.$refs.menu.save(startDate)
+          },
           copySuccess(e) {
             Vue.$toast.success('複製成功(⁎⁍̴̛ᴗ⁍̴̛⁎)', {
               position: 'top'
