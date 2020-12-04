@@ -133,7 +133,7 @@
               this.isStartDateEmpty = false
               let start = moment(val, 'YYYY/MM/DD')
               let end = moment(new Date())
-              let boringAge = end.diff(start, 'year')
+              let boringAge = Math.floor(end.diff(start, 'year', true))
 
               if (boringAge < 0) {
                 this.isBirthAlready = false
