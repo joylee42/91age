@@ -6,10 +6,13 @@
     <title>91式歲數計算器</title>
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="apple-touch-icon" sizes="192x192" href="touch-icon.png">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue2-datepicker/index.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue2-datepicker@3.8.1/index.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue-toast-notification@0.6.0/dist/theme-sugar.css">
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue2-datepicker@3.8.1/index.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue2-datepicker@3.8.1/locale/zh-tw.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue-toast-notification@0.6.0/dist/index.min.js"></script>
@@ -18,31 +21,64 @@
   </head>
   <body>
     <div id="app">
-      <br /><br />
-      <h3>~91式歲數計算器~</h3>
-      <span>完全本地運算,無經由伺服器運算</span><br />
-      <span>可安心食用</span>
-      <br /><br /><br />
-      <span>輸入出生日期YYYY/MM/DD⬇️</span><br />
-      <date-picker v-model="startDate" value-type="format" format="YYYY/MM/DD"></date-picker>
-      <br /><br />
-      <template v-if="isStartDateEmpty">
-        <span>窩ㄐ歲ㄋ(⁎⁍̴̛ᴗ⁍̴̛⁎)</span>
-      </template>
-      <template v-else>
-        <span v-if="isBirthAlready" id="chinese">窩{{ ninetyoneAge }}歲歲
-        <button v-clipboard="pendingCopyMsg"
-          @success="copySuccess"
-          @error="copyError"
-        >複製文字</button></span>
-        <span v-else>窩還沒出生</span>
-      </template>
+      <v-app>
+        <v-app-bar color="pink lighten-3" app>
+          <v-spacer></v-spacer>
+          <v-toolbar-title>91式歲數計算器</v-toolbar-title>
+          <v-spacer></v-spacer>
+        </v-app-bar>
+        <v-main>
+          <v-container fluid>
+            <v-layout text-center wrap>
+              <v-flex mb-5 xs12>
+                <p>完全本地運算、無經由伺服器運算、無蒐集個資</p>
+                <p>可安心食用</p>
+              </v-flex>
+              <v-flex mb-5 xs12>
+                <p>輸入出生日期YYYY/MM/DD⬇️</p>
+                <date-picker v-model="startDate" value-type="format" format="YYYY/MM/DD"></date-picker>
+              </v-flex>
+              <v-flex mb-5 xs12>
+                <template v-if="isStartDateEmpty">
+                  <span>窩ㄐ歲ㄋ(⁎⁍̴̛ᴗ⁍̴̛⁎)</span>
+                </template>
+                <template v-else>
+                  <div class="my-2">
+                    <p v-if="isBirthAlready" id="chinese">窩{{ ninetyoneAge }}歲歲
+                    <v-btn v-clipboard="pendingCopyMsg"
+                      @success="copySuccess"
+                      @error="copyError"
+                      color="primary"
+                      elevation="2"
+                    >複製文字</v-btn></p>
+                    <span v-else>窩還沒出生</span>
+                  </div>
+                </template>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-main>
+        <v-footer color="pink lighten-3" app>
+          <v-row
+          justify="center"
+          no-gutters
+          >
+          0.0
+          </v-row>
+        </v-footer>
+      </v-app>
     </div>
     <script>
+      const mq = window.matchMedia('(prefers-color-scheme: dark)')
       Vue.use(vueClipboards)
       Vue.use(VueToast)
-      var app = new Vue({
+      var vm = new Vue({
         el: '#app',
+        vuetify: new Vuetify({
+          theme: { 
+            dark: mq.matches,
+          }
+        }),
         data: {
           startDate: null,
           ninetyoneAge: null,
@@ -89,14 +125,9 @@
           DatePicker,
         },
       })
+      mq.addEventListener('change', (e) => {
+        vm.$vuetify.theme.dark = e.matches
+      })
     </script>
-    <style>
-      #app {
-        text-align: center;
-      }
-      h3 {
-        font-style: italic;
-      }
-    </style>
   </body>
 </html>
